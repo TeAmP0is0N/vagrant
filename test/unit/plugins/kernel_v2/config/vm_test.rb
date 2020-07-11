@@ -8,7 +8,7 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
   subject { described_class.new }
 
   let(:provider) { double("provider") }
-  let(:machine) { double("machine", provider: provider) }
+  let(:machine) { double("machine", provider: provider, provider_name: "provider", name: "default") }
 
   def assert_invalid
     errors = subject.validate(machine)
@@ -40,6 +40,8 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
 
     allow(provider).to receive(:capability?).with(:validate_disk_ext).and_return(true)
     allow(provider).to receive(:capability).with(:validate_disk_ext, "vdi").and_return(true)
+    allow(provider).to receive(:capability?).with(:set_default_disk_ext).and_return(true)
+    allow(provider).to receive(:capability).with(:set_default_disk_ext).and_return("vdi")
 
     subject.box = "foo"
   end
@@ -47,6 +49,20 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
   it "is valid with test defaults" do
     subject.finalize!
     assert_valid
+  end
+
+  it  "validates disables_host_modification option" do
+    subject.allow_hosts_modification = true
+    subject.finalize!
+    assert_valid
+
+    subject.allow_hosts_modification = false
+    subject.finalize!
+    assert_valid
+
+    subject.allow_hosts_modification = "truthy"
+    subject.finalize!
+    assert_invalid
   end
 
   describe "#base_mac" do
@@ -302,6 +318,32 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
         guest: "45", host: "74545"
       subject.finalize!
       assert_invalid
+    end
+
+    it "is an error if multiple networks set hostname" do
+      subject.network "public_network", ip: "192.168.0.1", hostname: true
+      subject.network "public_network", ip: "192.168.0.2", hostname: true
+      subject.finalize!
+      assert_invalid
+    end
+
+    it "is an error if networks set hostname without ip" do
+      subject.network "public_network", hostname: true
+      subject.finalize!
+      assert_invalid
+    end
+
+    it "is not an error if hostname non-bool" do
+      subject.network "public_network",  ip: "192.168.0.1", hostname: "true"
+      subject.finalize!
+      assert_valid
+    end
+
+    it "is not an error if one hostname is true" do
+      subject.network "public_network",  ip: "192.168.0.1", hostname: true
+      subject.network "public_network",  ip: "192.168.0.2", hostname: false
+      subject.finalize!
+      assert_valid
     end
   end
 
@@ -576,6 +618,14 @@ describe VagrantPlugins::Kernel_V2::VMConfig do
     it "raises an error with duplicate names" do
       subject.disk(:disk, size: 100, name: "foo")
       subject.disk(:disk, size: 1000, name: "foo", primary: false)
+      subject.finalize!
+      assert_invalid
+    end
+
+    it "raises an error with duplicate disk files" do
+      allow(File).to receive(:file?).with("bar.vmdk").and_return(true)
+      subject.disk(:disk, size: 100, name: "foo1", file: "bar.vmdk")
+      subject.disk(:disk, size: 100, name: "foo2", file: "bar.vmdk")
       subject.finalize!
       assert_invalid
     end

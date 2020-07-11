@@ -2,11 +2,30 @@
 
 FEATURES:
 
+- hyperv/disks: Add ability to manage virtual disks for guests [GH-11541]
+
 IMPROVEMENTS:
+
+- host/darwin: Add ability to build ISO [GH-11694]
+- virtualbox/disks: Add ability to manage virtual dvds for guests [GH-11613]
 
 BUG FIXES:
 
+- core: Ensure MapCommandOptions class is required [GH-11629]
+- core: Fix `:all` special value on triggers [GH-11688]
+- core: Ensure network addresses have a valid netmask [GH-11679]
+- core: Recover local machine metadata in global index [GH-11656]
+- core: Print CLI help message is ambiguous option provided [GH-11746]
+- commands/destroy: Add gracefull option to switch beween gracefully or forcefully shutting down a vm [GH-11628]
+- config/vm: Add option `allow_hosts_modification` to allow/disable Vagrant editing the guests `/etc/hosts` file [GH-11565]
+- config/vm: Add config option `hostname` to `config.vm.network` [GH-11566]
+- config/vm: Don't ignore NFS synced folders on Windows hosts [GH-11631]
+- host: Use regular port check for loopback addresses [GH-11654]
 - guest/esxi: Be more permissive with permissions of ssh directory [GH-11587]
+- guest/linux: Add virtual box shared folders to guest fstab [GH-11570]
+- guest/suse: Allow setting of hostname according to `hostname` option [GH-11567]
+- providers/docker: Ensure new containers don't grab existing bound ports [GH-11602]
+- provisioners/shell: Ensure Windows shell provisioner gets the correct file extension [GH-11644]
 
 ## 2.2.9 (May 07, 2020)
 

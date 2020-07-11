@@ -13,14 +13,14 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigTrigger do
 
   def assert_invalid
     errors = subject.validate(machine)
-    if !errors.empty? { |v| !v.empty? }
+    if errors.empty?
       raise "No errors: #{errors.inspect}"
     end
   end
 
   def assert_valid
     errors = subject.validate(machine)
-    if !errors.empty? { |v| v.empty? }
+    if !errors.empty?
       raise "Errors: #{errors.inspect}"
     end
   end
@@ -53,7 +53,7 @@ describe VagrantPlugins::Kernel_V2::VagrantConfigTrigger do
 
     it "sets a command" do
       subject.finalize!
-      expect(subject.command).to eq(command.to_s)
+      expect(subject.command).to eq(command)
     end
 
     it "uses default error behavior" do

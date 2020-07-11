@@ -79,6 +79,7 @@ module VagrantPlugins
           b.use ForwardPorts
           b.use SetHostname
           b.use SaneDefaults
+          b.use CloudInitSetup
           b.use CleanupDisks
           b.use Disk
           b.use Customize, "pre-boot"
@@ -106,7 +107,7 @@ module VagrantPlugins
                 b3.use ConfigValidate
                 b3.use ProvisionerCleanup, :before
                 b3.use CheckAccessible
-                b3.use EnvSet, force_halt: true
+                b3.use EnvSet, force_halt: env2[:force_halt]
                 b3.use action_halt
                 b3.use Destroy
                 b3.use CleanMachineFolder
